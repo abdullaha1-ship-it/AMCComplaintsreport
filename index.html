@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMC Complaints Analysis - 427 Records</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: #764ba2;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .stat-card .detail {
+            color: #888;
+            font-size: 13px;
+        }
+        
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #f0f0f0;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+        
+        .double-chart {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        
+        .chart-wrapper {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        table tr:hover {
+            background: #e8e9ff;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #e8e9ff;
+            color: #667eea;
+        }
+        
+        .badge.high {
+            background: #ffebee;
+            color: #f44336;
+        }
+        
+        .badge.medium {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+        
+        .badge.low {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+        
+        @media (max-width: 1200px) {
+            .double-chart {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            body {
+                padding: 10px;
+            }
+            .section {
+                padding: 20px;
+            }
+            .header {
+                padding: 20px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .chart-container {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>AMC COMPLAINTS ANALYSIS</h1>
+        </div>
+
+        <!-- Key Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Records</h3>
+                <div class="number">427</div>
+                <div class="detail">Complaints Analyzed</div>
+            </div>
+            <div class="stat-card">
+                <h3>Issue Types</h3>
+                <div class="number">15</div>
+                <div class="detail">Unique Categories Identified</div>
+            </div>
+            <div class="stat-card">
+                <h3>Missing Issue Types</h3>
+                <div class="number">67</div>
+                <div class="detail">15.7% Inferred from Context</div>
+            </div>
+        </div>
+
+        <!-- Issue Type Distribution -->
+        <div class="section">
+            <h2>🎯 Issue Type Distribution</h2>
+            <div class="chart-container">
+                <canvas id="issueTypeChart"></canvas>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Issue Type Category</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                        <th>Distribution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Login & Account Issues</td><td>142</td><td>33.3%</td><td><div class="progress-bar"><div class="progress-fill" style="width: 33.3%">33.3%</div></div></td></tr>
+                    <tr><td>Failed Booking / Missing Points</td><td>58</td><td>13.6%</td><td><div class="progress-bar"><div class="progress-fill" style="width: 13.6%">13.6%</div></div></td></tr>
+                    <tr><td>Birthday/Loyalty Gift Issues</td><td>47</td><td>11.0%</td><td><div class="progress-bar"><div class="progress-fill" style="width: 11.0%">11.0%</div></div></td></tr>
+                    <tr><td>Staff/Branch Complaint</td><td>31</td><td>7.3%</td><td><div class="progress-bar"><div class="progress-fill" style="width: 7.3%">7.3%</div></div></td></tr>
+                    <tr><td>Seat Problems</td><td>24</td><td>5.6%</td><td><div class="progress-bar"><div class="progress-fill" style="width: 5.6%">5.6%</div></div></td></tr>
+                    <tr><td>GCAM/Age Rating Complaints</td><td>19</td><td>4.4%</td><td><div class="progress-bar"><div class="progress-fill" style="width: 4.4%">4.4%</div></div></td></tr>
+                    <tr><td>Voucher/Offer Not Working</td><td>18</td><td>4.2%</td><td><div class="progress-bar"><div class="progress-fill" style="width: 4.2%">4.2%</div></div></td></tr>
+                    <tr><td>Lost Items</td><td>17</td><td>4.0%</td><td><div class="progress-bar"><div class="progress-fill" style="width: 4.0%">4.0%</div></div></td></tr>
+                    <tr><td>Bad Smell / Cleanliness</td><td>16</td><td>3.7%</td><td><div class="progress-bar"><div class="progress-fill" style="width: 3.7%">3.7%</div></div></td></tr>
+                    <tr><td>Website & App Issues</td><td>15</td><td>3.5%</td><td><div class="progress-bar"><div class="progress-fill" style="width: 3.5%">3.5%</div></div></td></tr>
+                    <tr><td>Refund/Cancellation Requests</td><td>14</td><td>3.3%</td><td><div class="progress-bar"><div class="progress-fill" style="width: 3.3%">3.3%</div></div></td></tr>
+                    <tr><td>Temperature/Air Conditioning</td><td>9</td><td>2.1%</td><td><div class="progress-bar"><div class="progress-fill" style="width: 2.1%">2.1%</div></div></td></tr>
+                    <tr><td>Broken Equipment (Screen/Sound)</td><td>7</td><td>1.6%</td><td><div class="progress-bar"><div class="progress-fill" style="width: 1.6%">1.6%</div></div></td></tr>
+                    <tr><td>Alarm/Lights Disruption</td><td>5</td><td>1.2%</td><td><div class="progress-bar"><div class="progress-fill" style="width: 1.2%">1.2%</div></div></td></tr>
+                    <tr><td>Other</td><td>5</td><td>1.2%</td><td><div class="progress-bar"><div class="progress-fill" style="width: 1.2%">1.2%</div></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Branch/Location Distribution -->
+        <div class="section">
+            <h2>🏪 Branch/Location Distribution</h2>
+            <div class="double-chart">
+                <div class="chart-wrapper">
+                    <canvas id="branchChart"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="branchBarChart"></canvas>
+                </div>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Branch</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Not Specified</td><td>196</td><td>45.9%</td></tr>
+                    <tr><td>PANORAMA</td><td>68</td><td>15.9%</td></tr>
+                    <tr><td>Riyadh Gallery</td><td>61</td><td>14.3%</td></tr>
+                    <tr><td>Stars Avenue (Jeddah)</td><td>53</td><td>12.4%</td></tr>
+                    <tr><td>Ajdan Walk</td><td>49</td><td>11.5%</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Login Issues Sub-Categories -->
+        <div class="section">
+            <h2>🔐 Login Issues - Sub-Category Breakdown</h2>
+            <div class="chart-container">
+                <canvas id="loginSubChart"></canvas>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sub-Category</th>
+                        <th>Count</th>
+                        <th>Percentage of Login Issues</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Account Not Found Errors</td><td>68</td><td>47.9%</td><td>"We can't find your username" messages</td></tr>
+                    <tr><td>Password Reset Failures</td><td>41</td><td>28.9%</td><td>Password mismatch or expired link errors</td></tr>
+                    <tr><td>Verification Code Not Received</td><td>22</td><td>15.5%</td><td>No OTP/code received via email</td></tr>
+                    <tr><td>Account Activation Required</td><td>11</td><td>7.7%</td><td>Account needs activation before use</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Loyalty/Gift Issues Detail -->
+        <div class="section">
+            <h2>🎁 Loyalty & Gift Issues Breakdown</h2>
+            <div class="chart-container">
+                <canvas id="loyaltyChart"></canvas>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Gift Type</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                        <th>Common Issue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Birthday Gift (Failed Booking)</td><td>28</td><td>59.6%</td><td>Gift not returned after booking failure</td></tr>
+                    <tr><td>Bronze Circle Rewards</td><td>8</td><td>17.0%</td><td>Points deducted but not restored</td></tr>
+                    <tr><td>Silver Circle Rewards</td><td>6</td><td>12.8%</td><td>Gift not appearing or usable</td></tr>
+                    <tr><td>Diamond Circle Rewards</td><td>3</td><td>6.4%</td><td>Free tickets not accessible</td></tr>
+                    <tr><td>Celebration Gifts</td><td>2</td><td>4.3%</td><td>Multiple gifts, wrong one shown</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Issue Type Distribution Chart
+        const issueCtx = document.getElementById('issueTypeChart').getContext('2d');
+        new Chart(issueCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Login & Account', 'Failed Booking', 'Birthday/Loyalty', 'Staff/Branch', 'Seat Problems', 'GCAM/Age', 'Voucher/Offer', 'Lost Items', 'Cleanliness', 'Website/App', 'Refund/Cancellation', 'Temperature', 'Broken Equipment', 'Alarm/Lights', 'Other'],
+                datasets: [{
+                    label: 'Number of Complaints',
+                    data: [142, 58, 47, 31, 24, 19, 18, 17, 16, 15, 14, 9, 7, 5, 5],
+                    backgroundColor: [
+                        '#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b',
+                        '#fa709a', '#fee140', '#a8edea', '#d4fc79', '#ffaaa5',
+                        '#ffd3b6', '#ffaaa5', '#a8edea', '#d4fc79', '#9cecfb'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Issue Type Distribution (427 Total Complaints)',
+                        font: { size: 16, weight: 'bold' }
+                    },
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Number of Complaints' }
+                    }
+                }
+            }
+        });
+
+        // Branch Distribution Chart (Doughnut)
+        const branchCtx = document.getElementById('branchChart').getContext('2d');
+        new Chart(branchCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Not Specified', 'PANORAMA', 'Riyadh Gallery', 'Stars Avenue', 'Ajdan Walk'],
+                datasets: [{
+                    data: [196, 68, 61, 53, 49],
+                    backgroundColor: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Branch Distribution',
+                        font: { size: 16, weight: 'bold' }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // Branch Bar Chart
+        const branchBarCtx = document.getElementById('branchBarChart').getContext('2d');
+        new Chart(branchBarCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Not Specified', 'PANORAMA', 'Riyadh Gallery', 'Stars Avenue', 'Ajdan Walk'],
+                datasets: [{
+                    label: 'Complaint Count',
+                    data: [196, 68, 61, 53, 49],
+                    backgroundColor: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Complaints by Branch',
+                        font: { size: 16, weight: 'bold' }
+                    },
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Login Sub-Categories Chart
+        const loginSubCtx = document.getElementById('loginSubChart').getContext('2d');
+        new Chart(loginSubCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Account Not Found', 'Password Reset Failures', 'Verification Code Not Received', 'Account Activation Required'],
+                datasets: [{
+                    label: 'Number of Cases',
+                    data: [68, 41, 22, 11],
+                    backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#4facfe'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Login Issues - Sub-Category Breakdown (142 Total)',
+                        font: { size: 16, weight: 'bold' }
+                    },
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Number of Cases' }
+                    }
+                }
+            }
+        });
+
+        // Loyalty Chart
+        const loyaltyCtx = document.getElementById('loyaltyChart').getContext('2d');
+        new Chart(loyaltyCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Birthday Gift (Failed Booking)', 'Bronze Circle', 'Silver Circle', 'Diamond Circle', 'Celebration Gifts'],
+                datasets: [{
+                    data: [28, 8, 6, 3, 2],
+                    backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Loyalty & Gift Issues Breakdown (47 Total)',
+                        font: { size: 16, weight: 'bold' }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
